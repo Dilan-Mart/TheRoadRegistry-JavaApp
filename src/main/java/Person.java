@@ -16,6 +16,14 @@ public class Person {
     private HashMap<Date, Integer> demeritPoints = new HashMap<>();
     private boolean isSuspended;
 
+    public Person(String personID, String firstName, String lastName, String address, String birthDate) {
+        this.personID = personID;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.address = address;
+        this.birthdate = birthDate;
+    }
+    
     public void setPersonID(String personID) {
         this.personID = personID;
     }
@@ -47,8 +55,8 @@ public class Person {
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
             writer.write(String.join(", ", personID, firstName, lastName, address, birthdate) + "||");
-            if (!demeritPoints.isEmpty()) {
-                writer.write(String.join(demeritPoints.toString()));
+            if (!this.demeritPoints.isEmpty()) {
+                writer.write(String.join(this.demeritPoints.toString()));
             }
             writer.newLine();
             return true;
@@ -62,12 +70,12 @@ public class Person {
         if (isInvalidPersonID(newID) || isInvalidAddress(newAddress) || isInvalidBirthdate(newBirthdate))
             return false;
 
-        boolean isBirthChanged = !birthdate.equals(newBirthdate);
-        boolean isAddressChanged = !address.equals(newAddress);
-        boolean isIDChanged = !personID.equals(newID);
+        boolean isBirthChanged = !this.birthdate.equals(newBirthdate);
+        boolean isAddressChanged = !this.address.equals(newAddress);
+        boolean isIDChanged = !this.personID.equals(newID);
 
         // If under 18, address cannot change
-        if (getAge(birthdate) < 18 && isAddressChanged)
+        if (getAge(this.birthdate) < 18 && isAddressChanged)
             return false;
 
         // If birthdate changes, no other detail can change
@@ -126,19 +134,23 @@ public class Person {
 
         try {
             Date date = new SimpleDateFormat("dd-MM-yyyy").parse(offenseDate);
-            demeritPoints.put(date, points);
+            this.demeritPoints.put(date, points);
 
             int age = getAge(this.birthdate);
             int totalPoints = getPointsInLast2Years();
 
             if ((age < 21 && totalPoints > 6) || (age >= 21 && totalPoints > 12)) {
-                isSuspended = true;
+                this.isSuspended = true;
             }
 
             return "Success";
         } catch (ParseException e) {
             return "Failed";
         }
+    }
+    
+    public boolean isSuspended() {
+        return this.isSuspended;
     }
 
     private boolean isInvalidPersonID(String id) {
