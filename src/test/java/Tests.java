@@ -4,7 +4,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import java.io.File;
 
-public class test {
+public class Tests {
 	
 	private static final String FILE_NAME = "persons.txt";
 
