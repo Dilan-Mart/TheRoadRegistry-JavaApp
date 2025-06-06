@@ -29,19 +29,19 @@ public class Tests {
     @Test
     public void testAddPerson_Valid() {
       System.out.println("Person added");
-        Person p = new Person("56s_d%&fAB", "John", "Doe", "10|Main St|Melbourne|Victoria|Australia", "15-11-2000");
+        Person p = new Person("56s_d%&fAB", "Vivek", "Reddy", "10|Main St|Melbourne|Victoria|Australia", "15-11-2000");
         assertTrue(p.addPerson());
     }
 
     @Test
     public void testAddPerson_InvalidID() {
-        Person p = new Person("12abcdXY", "Jane", "Smith", "10|Main St|Melbourne|Victoria|Australia", "15-11-2000");
+        Person p = new Person("12abcdXY", "Dilan", "Fernandez", "10|Main St|Melbourne|Victoria|Australia", "15-11-2000");
         assertFalse(p.addPerson());
     }
 
     @Test
     public void testAddPerson_InvalidAddress() {
-        Person p = new Person("78s_d!f#AB", "Alice", "Brown", "15|Smith St|Sydney|NSW|Australia", "15-11-2000");
+        Person p = new Person("78s_d!f#AB", "Varun", "Karthik", "15|Smith St|Sydney|NSW|Australia", "15-11-2000");
         assertFalse(p.addPerson());
     }
 
