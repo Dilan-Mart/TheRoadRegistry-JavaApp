@@ -109,7 +109,7 @@ public class Tests {
     public void testAddDemeritPoints_ValidCase() {
         Person p = new Person("78a_x!z@AB", "Clark", "Kent", "2|Hero Ln|Melbourne|Victoria|Australia", "01-01-2000");
         p.addPerson();
-        String result = p.addDemeritPoints("01-01-2023", 3);
+        String result = p.addDemeritPoints("01-01-2024", 3);
         assertEquals("Success", result);
         assertFalse(p.isSuspended());
     }

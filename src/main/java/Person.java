@@ -47,17 +47,24 @@ public class Person {
     // File path for storing records
     private static final String FILE_PATH = "persons.txt";
 
+    @Override
+    public String toString() {
+        String str = String.join(", ", this.personID, this.firstName, this.lastName, this.address, this.birthdate) + "||";
+        if (!this.demeritPoints.isEmpty()) {
+
+            str += this.demeritPoints.toString();
+        }
+        return str;
+    }
+
 
     public boolean addPerson() {
-        if (isInvalidPersonID(personID) || isInvalidAddress(address) || isInvalidBirthdate(birthdate)) {
+        if (isInvalidPersonID(this.personID) || isInvalidAddress(this.address) || isInvalidBirthdate(this.birthdate)) {
             return false;
         }
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
-            writer.write(String.join(", ", personID, firstName, lastName, address, birthdate) + "||");
-            if (!this.demeritPoints.isEmpty()) {
-                writer.write(String.join(this.demeritPoints.toString()));
-            }
+            writer.write(this.toString());
             writer.newLine();
             return true;
         } catch (IOException e) {
@@ -70,22 +77,9 @@ public class Person {
         if (isInvalidPersonID(newID) || isInvalidAddress(newAddress) || isInvalidBirthdate(newBirthdate))
             return false;
 
-        boolean isBirthChanged = !this.birthdate.equals(newBirthdate);
+        boolean isDOBChanged = !this.birthdate.equals(newBirthdate);
         boolean isAddressChanged = !this.address.equals(newAddress);
         boolean isIDChanged = !this.personID.equals(newID);
-
-        // If under 18, address cannot change
-        if (getAge(this.birthdate) < 18 && isAddressChanged)
-            return false;
-
-        // If birthdate changes, no other detail can change
-        if (isBirthChanged && (isIDChanged || !firstName.equals(newFirstName) || !lastName.equals(newLastName) || isAddressChanged))
-            return false;
-
-        // If first char of personID is even, personID cannot change
-        char ch = personID.charAt(0);
-        if (Character.isDigit(ch) && ((int) ch) % 2 == 0 && isIDChanged)
-            return false;
 
         // Update file
         List<String> lines = new ArrayList<>();
@@ -94,14 +88,38 @@ public class Person {
         try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String exceptDemeritPointsStr = line.substring(0, line.indexOf("||"));
-                String[] lineArr = exceptDemeritPointsStr.split(", ");
-                if (lineArr[0].equals(personID)) {
-                    lines.add(String.join(", ", newID, newFirstName, newLastName, newAddress, newBirthdate) + "||");
-                    updated = true;
-                } else {
-                    lines.add(line);
+                String[] split = line.split("\\|\\|");
+                String pData = split[0];
+                String pDemerit = "";
+                if(split.length == 2) {
+                    pDemerit = split[1];
                 }
+                String[] lineArr = pData.split("\\s*,\\s*");
+
+                // If under 18, address cannot change
+                if (getAge(this.birthdate) < 18 && isAddressChanged)
+                    return false;
+
+                // If birthdate changes, no other detail can change
+                if (isDOBChanged && (isIDChanged || !firstName.equals(newFirstName) || !lastName.equals(newLastName) || isAddressChanged))
+                    return false;
+                else {
+                    this.setBirthdate(newBirthdate);
+                }
+
+                // If first char of personID is even, personID cannot change
+                char ch = this.personID.charAt(0);
+                if (Character.isDigit(ch) && ((int) ch) % 2 == 0 && isIDChanged)
+                    return false;
+
+                if (lineArr[0].equals(this.personID)) {
+                    line = String.join(", ", newID, newFirstName, newLastName, newAddress, newBirthdate);
+                    if(!pDemerit.isEmpty()){
+                        line += "||" + pDemerit;
+                    }
+                    updated = true;
+                }
+                lines.add(line);
             }
         } catch (IOException e) {
             return false;
@@ -109,8 +127,8 @@ public class Person {
 
         if (updated) {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH))) {
-                for (String l : lines) {
-                    writer.write(l);
+                for (String s : lines) {
+                    writer.write(s);
                     writer.newLine();
                 }
                 // Update instance fields
@@ -132,9 +150,42 @@ public class Person {
         if (!offenseDate.matches("\\d{2}-\\d{2}-\\d{4}") || points < 1 || points > 6)
             return "Failed";
 
+        List<String> lines = new ArrayList<>();
+        boolean updated = false;
+
         try {
             Date date = new SimpleDateFormat("dd-MM-yyyy").parse(offenseDate);
             this.demeritPoints.put(date, points);
+
+            try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] split = line.split("\\|\\|");
+                    String pData = split[0];
+
+                    String[] lineArr = pData.split("\\s*,\\s*");
+
+                    if (lineArr[0].equals(this.personID)) {
+                        line = pData + "||" + this.demeritPoints.toString();
+                        updated = true;
+                    }
+                    lines.add(line);
+                }
+            } catch (IOException e) {
+                return "Failed";
+            }
+
+            if (updated) {
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH))) {
+                    for (String s : lines) {
+                        writer.write(s);
+                        writer.newLine();
+                    }
+
+                } catch (IOException e) {
+                    return "Failed";
+                }
+            }
 
             int age = getAge(this.birthdate);
             int totalPoints = getPointsInLast2Years();
