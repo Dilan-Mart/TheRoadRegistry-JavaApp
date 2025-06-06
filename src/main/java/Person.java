@@ -1,3 +1,4 @@
+//import packages
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -6,6 +7,7 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+//Defining Person Class
 public class Person {
 
     private String personID;
@@ -23,7 +25,7 @@ public class Person {
         this.address = address;
         this.birthdate = birthDate;
     }
-    
+//Getters and Setters    
     public void setPersonID(String personID) {
         this.personID = personID;
     }
@@ -57,7 +59,7 @@ public class Person {
         return str;
     }
 
-
+//Function to add Person Details in TextFile
     public boolean addPerson() {
         if (isInvalidPersonID(this.personID) || isInvalidAddress(this.address) || isInvalidBirthdate(this.birthdate)) {
             return false;
@@ -72,6 +74,7 @@ public class Person {
         }
     }
 
+//Update Person Details
     public boolean updatePersonalDetails(String newID, String newFirstName, String newLastName, String newAddress, String newBirthdate) {
         // Validate new values first
         if (isInvalidPersonID(newID) || isInvalidAddress(newAddress) || isInvalidBirthdate(newBirthdate))
@@ -96,18 +99,18 @@ public class Person {
                 }
                 String[] lineArr = pData.split("\\s*,\\s*");
 
-                // If under 18, address cannot change
+                // Condition 1: If under 18, address cannot change
                 if (getAge(this.birthdate) < 18 && isAddressChanged)
                     return false;
 
-                // If birthdate changes, no other detail can change
+                //  Condition 2: If birthdate changes, no other detail can change
                 if (isDOBChanged && (isIDChanged || !firstName.equals(newFirstName) || !lastName.equals(newLastName) || isAddressChanged))
                     return false;
                 else {
                     this.setBirthdate(newBirthdate);
                 }
 
-                // If first char of personID is even, personID cannot change
+                //  Condition 3: If first char of personID is even, personID cannot change
                 char ch = this.personID.charAt(0);
                 if (Character.isDigit(ch) && ((int) ch) % 2 == 0 && isIDChanged)
                     return false;
@@ -145,6 +148,8 @@ public class Person {
 
         return false;
     }
+    
+//Add Demerit Points to a Person and Update TextFile
 
     public String addDemeritPoints(String offenseDate, int points) {
         if (!offenseDate.matches("\\d{2}-\\d{2}-\\d{4}") || points < 1 || points > 6)
